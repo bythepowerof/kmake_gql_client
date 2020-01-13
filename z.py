@@ -5,7 +5,7 @@ from sgqlc.endpoint.http import HTTPEndpoint, add_query_to_url
 
 op = Operation(schema.Query)  # note 'schema.'
 
-todos = op.todos()
+todos = op.todos(id="7")
 todos.__fields__(id=True, text=True, done=True)
 todos.user.__fields__(id=True, name=True)
 

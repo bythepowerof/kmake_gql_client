@@ -32,6 +32,14 @@ class NewTodo(sgqlc.types.Input):
 ########################################################################
 # Output Objects and Interfaces
 ########################################################################
+class Kmake(sgqlc.types.Type):
+    __schema__ = schema
+    name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
+    variables = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('Variable')), graphql_name='variables')
+    rules = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('Rule')), graphql_name='rules')
+    status = sgqlc.types.Field(String, graphql_name='status')
+
+
 class Mutation(sgqlc.types.Type):
     __schema__ = schema
     create_todo = sgqlc.types.Field(sgqlc.types.non_null('Todo'), graphql_name='createTodo', args=sgqlc.types.ArgDict((
@@ -40,9 +48,28 @@ class Mutation(sgqlc.types.Type):
     )
 
 
+class Namespace(sgqlc.types.Type):
+    __schema__ = schema
+    name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
+    kmakes = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(Kmake)), graphql_name='kmakes')
+
+
 class Query(sgqlc.types.Type):
     __schema__ = schema
-    todos = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null('Todo'))), graphql_name='todos')
+    todos = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null('Todo'))), graphql_name='todos', args=sgqlc.types.ArgDict((
+        ('id', sgqlc.types.Arg(ID, graphql_name='id', default=None)),
+))
+    )
+    namespaces = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(Namespace)), graphql_name='namespaces')
+
+
+class Rule(sgqlc.types.Type):
+    __schema__ = schema
+    targets = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(String)), graphql_name='targets')
+    doublecolon = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='doublecolon')
+    commands = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(String)), graphql_name='commands')
+    prereqs = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(String)), graphql_name='prereqs')
+    targetpattern = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='targetpattern')
 
 
 class Todo(sgqlc.types.Type):
@@ -57,6 +84,12 @@ class User(sgqlc.types.Type):
     __schema__ = schema
     id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
     name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
+
+
+class Variable(sgqlc.types.Type):
+    __schema__ = schema
+    name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
+    value = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='value')
 
 
 
