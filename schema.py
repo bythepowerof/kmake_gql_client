@@ -16,51 +16,105 @@ ID = sgqlc.types.ID
 
 Int = sgqlc.types.Int
 
+class JobType(sgqlc.types.Enum):
+    __schema__ = schema
+    __choices__ = ('JOB', 'DUMMY', 'FILEWAIT')
+
+
+class RunType(sgqlc.types.Enum):
+    __schema__ = schema
+    __choices__ = ('START', 'RESTART', 'STOP', 'DELETE', 'CREATE', 'RESET', 'FORCE')
+
+
 String = sgqlc.types.String
 
 
 ########################################################################
 # Input Objects
 ########################################################################
-class NewTodo(sgqlc.types.Input):
-    __schema__ = schema
-    text = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='text')
-    user_id = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='userId')
-
-
 
 ########################################################################
 # Output Objects and Interfaces
 ########################################################################
-class Kmake(sgqlc.types.Type):
+class KV(sgqlc.types.Type):
     __schema__ = schema
-    name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
-    variables = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('Variable')), graphql_name='variables')
-    rules = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('Rule')), graphql_name='rules')
+    key = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='key')
+    value = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='value')
+
+
+class KmakeObject(sgqlc.types.Interface):
+    __schema__ = schema
+    name = sgqlc.types.Field(String, graphql_name='name')
+    namespace = sgqlc.types.Field(String, graphql_name='namespace')
     status = sgqlc.types.Field(String, graphql_name='status')
 
 
-class Mutation(sgqlc.types.Type):
+class KmakeRunOp(sgqlc.types.Interface):
     __schema__ = schema
-    create_todo = sgqlc.types.Field(sgqlc.types.non_null('Todo'), graphql_name='createTodo', args=sgqlc.types.ArgDict((
-        ('input', sgqlc.types.Arg(sgqlc.types.non_null(NewTodo), graphql_name='input', default=None)),
-))
-    )
+    dummy = sgqlc.types.Field(String, graphql_name='dummy')
+
+
+class KmakeScheduleRunOp(sgqlc.types.Interface):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(String, graphql_name='dummy')
+
+
+class KmakeScheduler(sgqlc.types.Interface):
+    __schema__ = schema
+    name = sgqlc.types.Field(String, graphql_name='name')
+    namespace = sgqlc.types.Field(String, graphql_name='namespace')
+    status = sgqlc.types.Field(String, graphql_name='status')
+    variables = sgqlc.types.Field(sgqlc.types.list_of(KV), graphql_name='variables')
+    monitor = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='monitor')
 
 
 class Namespace(sgqlc.types.Type):
     __schema__ = schema
     name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
-    kmakes = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(Kmake)), graphql_name='kmakes')
+    kmakes = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('Kmake')), graphql_name='kmakes', args=sgqlc.types.ArgDict((
+        ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
+))
+    )
 
 
 class Query(sgqlc.types.Type):
     __schema__ = schema
-    todos = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null('Todo'))), graphql_name='todos', args=sgqlc.types.ArgDict((
-        ('id', sgqlc.types.Arg(ID, graphql_name='id', default=None)),
+    namespaces = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(Namespace)), graphql_name='namespaces', args=sgqlc.types.ArgDict((
+        ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
 ))
     )
-    namespaces = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(Namespace)), graphql_name='namespaces')
+    kmake_objects = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(KmakeObject)), graphql_name='kmakeObjects', args=sgqlc.types.ArgDict((
+        ('namespace', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='namespace', default=None)),
+        ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
+))
+    )
+    kmakeschedulers = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(KmakeScheduler)), graphql_name='kmakeschedulers', args=sgqlc.types.ArgDict((
+        ('namespace', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='namespace', default=None)),
+        ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
+        ('monitor', sgqlc.types.Arg(String, graphql_name='monitor', default=None)),
+))
+    )
+    kmakes = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('Kmake')), graphql_name='kmakes', args=sgqlc.types.ArgDict((
+        ('namespace', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='namespace', default=None)),
+        ('kmake', sgqlc.types.Arg(String, graphql_name='kmake', default=None)),
+))
+    )
+    kmakeruns = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('KmakeRun')), graphql_name='kmakeruns', args=sgqlc.types.ArgDict((
+        ('namespace', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='namespace', default=None)),
+        ('kmake', sgqlc.types.Arg(String, graphql_name='kmake', default=None)),
+        ('jobtype', sgqlc.types.Arg(JobType, graphql_name='jobtype', default=None)),
+        ('kmakerun', sgqlc.types.Arg(String, graphql_name='kmakerun', default=None)),
+))
+    )
+    kmakescheduleruns = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('KmakeScheduleRun')), graphql_name='kmakescheduleruns', args=sgqlc.types.ArgDict((
+        ('namespace', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='namespace', default=None)),
+        ('kmake', sgqlc.types.Arg(String, graphql_name='kmake', default=None)),
+        ('kmakerun', sgqlc.types.Arg(String, graphql_name='kmakerun', default=None)),
+        ('kmakescheduler', sgqlc.types.Arg(String, graphql_name='kmakescheduler', default=None)),
+        ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
+        ('runtype', sgqlc.types.Arg(RunType, graphql_name='runtype', default=None)),
+))
+    )
 
 
 class Rule(sgqlc.types.Type):
@@ -72,24 +126,121 @@ class Rule(sgqlc.types.Type):
     targetpattern = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='targetpattern')
 
 
-class Todo(sgqlc.types.Type):
-    __schema__ = schema
-    id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
-    text = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='text')
-    done = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='done')
-    user = sgqlc.types.Field(sgqlc.types.non_null('User'), graphql_name='user')
-
-
-class User(sgqlc.types.Type):
-    __schema__ = schema
-    id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
-    name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
-
-
-class Variable(sgqlc.types.Type):
+class Kmake(sgqlc.types.Type, KmakeObject):
     __schema__ = schema
     name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
-    value = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='value')
+    namespace = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='namespace')
+    status = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='status')
+    variables = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(KV)), graphql_name='variables')
+    rules = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(Rule)), graphql_name='rules')
+    runs = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('KmakeRun')), graphql_name='runs', args=sgqlc.types.ArgDict((
+        ('jobtype', sgqlc.types.Arg(JobType, graphql_name='jobtype', default=None)),
+        ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
+))
+    )
+
+
+class KmakeNowScheduler(sgqlc.types.Type, KmakeScheduler, KmakeObject):
+    __schema__ = schema
+    name = sgqlc.types.Field(String, graphql_name='name')
+    namespace = sgqlc.types.Field(String, graphql_name='namespace')
+    status = sgqlc.types.Field(String, graphql_name='status')
+    variables = sgqlc.types.Field(sgqlc.types.list_of(KV), graphql_name='variables')
+    monitor = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='monitor')
+    scheduleruns = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of('KmakeScheduleRun')), graphql_name='scheduleruns', args=sgqlc.types.ArgDict((
+        ('kmake', sgqlc.types.Arg(String, graphql_name='kmake', default=None)),
+        ('kmakerun', sgqlc.types.Arg(String, graphql_name='kmakerun', default=None)),
+        ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
+        ('runtype', sgqlc.types.Arg(RunType, graphql_name='runtype', default=None)),
+))
+    )
+
+
+class KmakeRun(sgqlc.types.Type, KmakeObject):
+    __schema__ = schema
+    name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
+    namespace = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='namespace')
+    status = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='status')
+    kmakename = sgqlc.types.Field(String, graphql_name='kmakename')
+    operation = sgqlc.types.Field(KmakeRunOp, graphql_name='operation')
+    schedulerun = sgqlc.types.Field(sgqlc.types.list_of('KmakeScheduleRun'), graphql_name='schedulerun', args=sgqlc.types.ArgDict((
+        ('kmakescheduler', sgqlc.types.Arg(String, graphql_name='kmakescheduler', default=None)),
+        ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
+        ('runtype', sgqlc.types.Arg(RunType, graphql_name='runtype', default=None)),
+))
+    )
+
+
+class KmakeRunDummy(sgqlc.types.Type, KmakeRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+
+
+class KmakeRunFileWait(sgqlc.types.Type, KmakeRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+    files = sgqlc.types.Field(sgqlc.types.list_of(sgqlc.types.non_null(String)), graphql_name='files')
+
+
+class KmakeRunJob(sgqlc.types.Type, KmakeRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+    targets = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(String)), graphql_name='targets')
+    image = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='image')
+    command = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='command')
+    args = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='args')
+
+
+class KmakeScheduleCreate(sgqlc.types.Type, KmakeScheduleRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+
+
+class KmakeScheduleDelete(sgqlc.types.Type, KmakeScheduleRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+
+
+class KmakeScheduleForce(sgqlc.types.Type, KmakeScheduleRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+    operation = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='operation')
+    recurse = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='recurse')
+
+
+class KmakeScheduleReset(sgqlc.types.Type, KmakeScheduleRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+    recurse = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='recurse')
+    full = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='full')
+
+
+class KmakeScheduleRun(sgqlc.types.Type, KmakeObject):
+    __schema__ = schema
+    name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
+    namespace = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='namespace')
+    status = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='status')
+    kmakename = sgqlc.types.Field(String, graphql_name='kmakename')
+    kmakerunname = sgqlc.types.Field(String, graphql_name='kmakerunname')
+    kmakeschedulename = sgqlc.types.Field(String, graphql_name='kmakeschedulename')
+    operation = sgqlc.types.Field(sgqlc.types.non_null(KmakeScheduleRunOp), graphql_name='operation')
+
+
+class KmakeScheduleRunRestart(sgqlc.types.Type, KmakeScheduleRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+    run = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='run')
+
+
+class KmakeScheduleRunStart(sgqlc.types.Type, KmakeScheduleRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+
+
+class KmakeScheduleRunStop(sgqlc.types.Type, KmakeScheduleRunOp):
+    __schema__ = schema
+    dummy = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='dummy')
+    run = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='run')
 
 
 
@@ -101,6 +252,6 @@ class Variable(sgqlc.types.Type):
 # Schema Entry Points
 ########################################################################
 schema.query_type = Query
-schema.mutation_type = Mutation
+schema.mutation_type = None
 schema.subscription_type = None
 

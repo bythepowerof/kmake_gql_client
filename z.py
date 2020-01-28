@@ -5,18 +5,25 @@ from sgqlc.endpoint.http import HTTPEndpoint, add_query_to_url
 
 op = Operation(schema.Query)  # note 'schema.'
 
-todos = op.todos(id="7")
-todos.__fields__(id=True, text=True, done=True)
-todos.user.__fields__(id=True, name=True)
+kmos = op.kmake_objects(namespace="default")
+#kmos.__typename__()
+kmos.name()
+kmos.namespace()
+kmos.status()
+
+kmos.__as__(schema.KmakeScheduleRun).kmakename()
+kmos.__as__(schema.KmakeScheduleRun).kmakerunname()
+kmos.__as__(schema.KmakeScheduleRun).kmakeschedulename()
+
 
 # you can print the resulting GraphQL
-# print(op)
+print(op)
 
 # Call the endpoint:
 url='http://localhost:8080/query'
 endpoint = HTTPEndpoint(url)
 data = endpoint(op)
 
-todo = (op + data).todos
-for t in todo:
+kmo = (op + data).kmake_objects
+for t in kmo:
     print(t)
