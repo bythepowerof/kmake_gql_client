@@ -63,7 +63,9 @@
           "name": "deprecated"
         }
       ],
-      "mutationType": null,
+      "mutationType": {
+        "name": "Mutation"
+      },
       "queryType": {
         "name": "Query"
       },
@@ -71,10 +73,11 @@
       "types": [
         {
           "enumValues": [],
-          "fields": [
+          "fields": [],
+          "inputFields": [
             {
-              "args": [],
-              "name": "name",
+              "defaultValue": null,
+              "name": "namespace",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -86,29 +89,216 @@
               }
             },
             {
-              "args": [
-                {
-                  "defaultValue": null,
-                  "name": "name",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
-              ],
-              "name": "kmakes",
+              "defaultValue": null,
+              "name": "kmakerun",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "Kmake",
-                    "ofType": null
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "name": "kmakescheduler",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": [],
+          "kind": "INPUT_OBJECT",
+          "name": "RunLevelIn",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "name",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "name": "namespace",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "name": "status",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "name": "variables",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "KV",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "monitor",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [],
+          "kind": "INTERFACE",
+          "name": "KmakeScheduler",
+          "possibleTypes": [
+            {
+              "kind": "OBJECT",
+              "name": "KmakeNowScheduler",
+              "ofType": null
+            }
+          ]
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "dummy",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "KmakeScheduleRunOp",
+              "ofType": null
+            }
+          ],
+          "kind": "OBJECT",
+          "name": "KmakeScheduleCreate",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "NewReset",
+                      "ofType": null
+                    }
                   }
+                }
+              ],
+              "name": "reset",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "KmakeScheduleRun",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "RunLevelIn",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "name": "stop",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "KmakeScheduleRun",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "name": "input",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "RunLevelIn",
+                      "ofType": null
+                    }
+                  }
+                }
+              ],
+              "name": "restart",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "KmakeScheduleRun",
+                  "ofType": null
                 }
               }
             }
@@ -116,7 +306,7 @@
           "inputFields": [],
           "interfaces": [],
           "kind": "OBJECT",
-          "name": "Namespace",
+          "name": "Mutation",
           "possibleTypes": []
         },
         {
@@ -249,445 +439,6 @@
           "fields": [
             {
               "args": [],
-              "name": "dummy",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "KmakeScheduleRunOp",
-              "ofType": null
-            }
-          ],
-          "kind": "OBJECT",
-          "name": "KmakeScheduleRunStart",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
-              "name": "dummy",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "run",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "KmakeScheduleRunOp",
-              "ofType": null
-            }
-          ],
-          "kind": "OBJECT",
-          "name": "KmakeScheduleRunRestart",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
-              "name": "name",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "name": "namespace",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "name": "status",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "name": "variables",
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "KV",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "monitor",
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [],
-          "kind": "INTERFACE",
-          "name": "KmakeScheduler",
-          "possibleTypes": [
-            {
-              "kind": "OBJECT",
-              "name": "KmakeNowScheduler",
-              "ofType": null
-            }
-          ]
-        },
-        {
-          "enumValues": [],
-          "fields": [],
-          "inputFields": [],
-          "interfaces": [],
-          "kind": "SCALAR",
-          "name": "Boolean",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
-              "name": "dummy",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "targets",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "image",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "command",
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "args",
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "KmakeRunOp",
-              "ofType": null
-            }
-          ],
-          "kind": "OBJECT",
-          "name": "KmakeRunJob",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [],
-          "inputFields": [],
-          "interfaces": [],
-          "kind": "SCALAR",
-          "name": "String",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
-              "name": "dummy",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "files",
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "KmakeRunOp",
-              "ofType": null
-            }
-          ],
-          "kind": "OBJECT",
-          "name": "KmakeRunFileWait",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
-              "name": "name",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "namespace",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "status",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "kmakename",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "name": "kmakerunname",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "name": "kmakeschedulename",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "name": "operation",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "INTERFACE",
-                  "name": "KmakeScheduleRunOp",
-                  "ofType": null
-                }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "KmakeObject",
-              "ofType": null
-            }
-          ],
-          "kind": "OBJECT",
-          "name": "KmakeScheduleRun",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [
-            {
-              "name": "JOB"
-            },
-            {
-              "name": "DUMMY"
-            },
-            {
-              "name": "FILEWAIT"
-            }
-          ],
-          "fields": [],
-          "inputFields": [],
-          "interfaces": [],
-          "kind": "ENUM",
-          "name": "JobType",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
-              "name": "key",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "value",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [],
-          "kind": "OBJECT",
-          "name": "KV",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
               "name": "name",
               "type": {
                 "kind": "NON_NULL",
@@ -802,7 +553,7 @@
           "fields": [
             {
               "args": [],
-              "name": "dummy",
+              "name": "name",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -811,69 +562,13 @@
                   "name": "String",
                   "ofType": null
                 }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "KmakeScheduleRunOp",
-              "ofType": null
-            }
-          ],
-          "kind": "OBJECT",
-          "name": "KmakeScheduleDelete",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
-              "name": "name",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
               }
             },
             {
               "args": [],
               "name": "namespace",
               "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "name": "status",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "name": "variables",
-              "type": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "KV",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "monitor",
-              "type": {
-                "kind": "LIST",
+                "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
@@ -883,67 +578,61 @@
               }
             },
             {
-              "args": [
-                {
-                  "defaultValue": null,
-                  "name": "kmake",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                },
-                {
-                  "defaultValue": null,
-                  "name": "kmakerun",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                },
-                {
-                  "defaultValue": null,
-                  "name": "name",
-                  "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                },
-                {
-                  "defaultValue": null,
-                  "name": "runtype",
-                  "type": {
-                    "kind": "ENUM",
-                    "name": "RunType",
-                    "ofType": null
-                  }
-                }
-              ],
-              "name": "scheduleruns",
+              "args": [],
+              "name": "status",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
-                  "kind": "LIST",
-                  "name": null,
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "KmakeScheduleRun",
-                    "ofType": null
-                  }
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "kmakename",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "name": "kmakerunname",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "name": "kmakeschedulename",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "name": "operation",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INTERFACE",
+                  "name": "KmakeScheduleRunOp",
+                  "ofType": null
                 }
               }
             }
           ],
           "inputFields": [],
           "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "KmakeScheduler",
-              "ofType": null
-            },
             {
               "kind": "INTERFACE",
               "name": "KmakeObject",
@@ -951,7 +640,7 @@
             }
           ],
           "kind": "OBJECT",
-          "name": "KmakeNowScheduler",
+          "name": "KmakeScheduleRun",
           "possibleTypes": []
         },
         {
@@ -970,6 +659,42 @@
           "interfaces": [],
           "kind": "SCALAR",
           "name": "ID",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "key",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "value",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "KV",
           "possibleTypes": []
         },
         {
@@ -1077,6 +802,203 @@
             },
             {
               "args": [],
+              "name": "operation",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "recurse",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "KmakeScheduleRunOp",
+              "ofType": null
+            }
+          ],
+          "kind": "OBJECT",
+          "name": "KmakeScheduleForce",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "dummy",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "KmakeRunOp",
+              "ofType": null
+            }
+          ],
+          "kind": "OBJECT",
+          "name": "KmakeRunDummy",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [],
+          "inputFields": [],
+          "interfaces": [],
+          "kind": "SCALAR",
+          "name": "String",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [
+            {
+              "name": "JOB"
+            },
+            {
+              "name": "DUMMY"
+            },
+            {
+              "name": "FILEWAIT"
+            }
+          ],
+          "fields": [],
+          "inputFields": [],
+          "interfaces": [],
+          "kind": "ENUM",
+          "name": "JobType",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "dummy",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "targets",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "image",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "command",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "args",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "KmakeRunOp",
+              "ofType": null
+            }
+          ],
+          "kind": "OBJECT",
+          "name": "KmakeRunJob",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "dummy",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
               "name": "run",
               "type": {
                 "kind": "NON_NULL",
@@ -1099,6 +1021,300 @@
           ],
           "kind": "OBJECT",
           "name": "KmakeScheduleRunStop",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [],
+          "inputFields": [],
+          "interfaces": [],
+          "kind": "SCALAR",
+          "name": "Boolean",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [
+            {
+              "name": "START"
+            },
+            {
+              "name": "RESTART"
+            },
+            {
+              "name": "STOP"
+            },
+            {
+              "name": "DELETE"
+            },
+            {
+              "name": "CREATE"
+            },
+            {
+              "name": "RESET"
+            },
+            {
+              "name": "FORCE"
+            }
+          ],
+          "fields": [],
+          "inputFields": [],
+          "interfaces": [],
+          "kind": "ENUM",
+          "name": "RunType",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "dummy",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "run",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "KmakeScheduleRunOp",
+              "ofType": null
+            }
+          ],
+          "kind": "OBJECT",
+          "name": "KmakeScheduleRunRestart",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [],
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "name": "namespace",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "name": "kmakescheduler",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "name": "full",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": [],
+          "kind": "INPUT_OBJECT",
+          "name": "NewReset",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "name",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "name": "name",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
+              ],
+              "name": "kmakes",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Kmake",
+                    "ofType": null
+                  }
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "Namespace",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "dummy",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "KmakeScheduleRunOp",
+              "ofType": null
+            }
+          ],
+          "kind": "OBJECT",
+          "name": "KmakeScheduleRunStart",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "dummy",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "KmakeScheduleRunOp",
+              "ofType": null
+            }
+          ],
+          "kind": "OBJECT",
+          "name": "KmakeScheduleDelete",
+          "possibleTypes": []
+        },
+        {
+          "enumValues": [],
+          "fields": [
+            {
+              "args": [],
+              "name": "dummy",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "recurse",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "full",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "inputFields": [],
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "KmakeScheduleRunOp",
+              "ofType": null
+            }
+          ],
+          "kind": "OBJECT",
+          "name": "KmakeScheduleReset",
           "possibleTypes": []
         },
         {
@@ -1155,6 +1371,15 @@
               "ofType": null
             }
           ]
+        },
+        {
+          "enumValues": [],
+          "fields": [],
+          "inputFields": [],
+          "interfaces": [],
+          "kind": "SCALAR",
+          "name": "Int",
+          "possibleTypes": []
         },
         {
           "enumValues": [],
@@ -1457,37 +1682,6 @@
           "possibleTypes": []
         },
         {
-          "enumValues": [
-            {
-              "name": "START"
-            },
-            {
-              "name": "RESTART"
-            },
-            {
-              "name": "STOP"
-            },
-            {
-              "name": "DELETE"
-            },
-            {
-              "name": "CREATE"
-            },
-            {
-              "name": "RESET"
-            },
-            {
-              "name": "FORCE"
-            }
-          ],
-          "fields": [],
-          "inputFields": [],
-          "interfaces": [],
-          "kind": "ENUM",
-          "name": "RunType",
-          "possibleTypes": []
-        },
-        {
           "enumValues": [],
           "fields": [
             {
@@ -1500,6 +1694,23 @@
                   "kind": "SCALAR",
                   "name": "String",
                   "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "files",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
                 }
               }
             }
@@ -1513,7 +1724,7 @@
             }
           ],
           "kind": "OBJECT",
-          "name": "KmakeRunDummy",
+          "name": "KmakeRunFileWait",
           "possibleTypes": []
         },
         {
@@ -1521,14 +1732,108 @@
           "fields": [
             {
               "args": [],
-              "name": "dummy",
+              "name": "name",
               "type": {
-                "kind": "NON_NULL",
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "name": "namespace",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "name": "status",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "name": "variables",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "KV",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "name": "monitor",
+              "type": {
+                "kind": "LIST",
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
                   "name": "String",
                   "ofType": null
+                }
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "name": "kmake",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "name": "kmakerun",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "name": "name",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "name": "runtype",
+                  "type": {
+                    "kind": "ENUM",
+                    "name": "RunType",
+                    "ofType": null
+                  }
+                }
+              ],
+              "name": "scheduleruns",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "KmakeScheduleRun",
+                    "ofType": null
+                  }
                 }
               }
             }
@@ -1537,12 +1842,17 @@
           "interfaces": [
             {
               "kind": "INTERFACE",
-              "name": "KmakeScheduleRunOp",
+              "name": "KmakeScheduler",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "KmakeObject",
               "ofType": null
             }
           ],
           "kind": "OBJECT",
-          "name": "KmakeScheduleCreate",
+          "name": "KmakeNowScheduler",
           "possibleTypes": []
         },
         {
@@ -1637,125 +1947,6 @@
               "ofType": null
             }
           ]
-        },
-        {
-          "enumValues": [],
-          "fields": [],
-          "inputFields": [],
-          "interfaces": [],
-          "kind": "SCALAR",
-          "name": "Int",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
-              "name": "dummy",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "recurse",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "full",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "KmakeScheduleRunOp",
-              "ofType": null
-            }
-          ],
-          "kind": "OBJECT",
-          "name": "KmakeScheduleReset",
-          "possibleTypes": []
-        },
-        {
-          "enumValues": [],
-          "fields": [
-            {
-              "args": [],
-              "name": "dummy",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "operation",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            },
-            {
-              "args": [],
-              "name": "recurse",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
-                }
-              }
-            }
-          ],
-          "inputFields": [],
-          "interfaces": [
-            {
-              "kind": "INTERFACE",
-              "name": "KmakeScheduleRunOp",
-              "ofType": null
-            }
-          ],
-          "kind": "OBJECT",
-          "name": "KmakeScheduleForce",
-          "possibleTypes": []
         }
       ]
     }

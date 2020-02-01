@@ -76,7 +76,19 @@ class KmakeQuery:
         for t in self.fetch():
             if t.__typename__ ==  "KmakeNowScheduler":
                 if t.name == args.scheduler:
-                    formatted_json = json.dumps(t, default=serialize, sort_keys=True, indent=4)
+                    op = Operation(schema.Mutation)
+
+                    input = schema.NewReset( namespace="default", kmakescheduler="kmakenowscheduler-sample", full=False)
+
+                    reset = op.reset(input=input)
+                    reset.kmakeschedulename()
+                    reset.name()
+
+                    reset.operation().__typename__()
+                    
+                    data = self.endpoint(op)
+                    r = (op + data).reset
+                    formatted_json = json.dumps(r, default=serialize, sort_keys=True, indent=4)
                     if args.color:
                         colorful_json = highlight(formatted_json, lexers.JsonLexer(), formatters.TerminalFormatter())
                         print(colorful_json)

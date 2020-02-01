@@ -32,6 +32,20 @@ String = sgqlc.types.String
 ########################################################################
 # Input Objects
 ########################################################################
+class NewReset(sgqlc.types.Input):
+    __schema__ = schema
+    namespace = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='namespace')
+    kmakescheduler = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='kmakescheduler')
+    full = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='full')
+
+
+class RunLevelIn(sgqlc.types.Input):
+    __schema__ = schema
+    namespace = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='namespace')
+    kmakerun = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='kmakerun')
+    kmakescheduler = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='kmakescheduler')
+
+
 
 ########################################################################
 # Output Objects and Interfaces
@@ -66,6 +80,22 @@ class KmakeScheduler(sgqlc.types.Interface):
     status = sgqlc.types.Field(String, graphql_name='status')
     variables = sgqlc.types.Field(sgqlc.types.list_of(KV), graphql_name='variables')
     monitor = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='monitor')
+
+
+class Mutation(sgqlc.types.Type):
+    __schema__ = schema
+    reset = sgqlc.types.Field(sgqlc.types.non_null('KmakeScheduleRun'), graphql_name='reset', args=sgqlc.types.ArgDict((
+        ('input', sgqlc.types.Arg(sgqlc.types.non_null(NewReset), graphql_name='input', default=None)),
+))
+    )
+    stop = sgqlc.types.Field(sgqlc.types.non_null('KmakeScheduleRun'), graphql_name='stop', args=sgqlc.types.ArgDict((
+        ('input', sgqlc.types.Arg(sgqlc.types.non_null(RunLevelIn), graphql_name='input', default=None)),
+))
+    )
+    restart = sgqlc.types.Field(sgqlc.types.non_null('KmakeScheduleRun'), graphql_name='restart', args=sgqlc.types.ArgDict((
+        ('input', sgqlc.types.Arg(sgqlc.types.non_null(RunLevelIn), graphql_name='input', default=None)),
+))
+    )
 
 
 class Namespace(sgqlc.types.Type):
@@ -252,6 +282,6 @@ class KmakeScheduleRunStop(sgqlc.types.Type, KmakeScheduleRunOp):
 # Schema Entry Points
 ########################################################################
 schema.query_type = Query
-schema.mutation_type = None
+schema.mutation_type = Mutation
 schema.subscription_type = None
 
