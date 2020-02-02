@@ -3,16 +3,26 @@ from sgqlc.types import Type, Field, list_of
 from schema import schema as schema
 from sgqlc.endpoint.http import HTTPEndpoint, add_query_to_url
 import json
+import yaml
+import types
+
 from pygments import highlight, lexers, formatters
 import argparse
 from sys import argv, stderr
 
 
 class KmakeQuery:
-    def __init__(self, namespace="default", url='http://localhost:8080/query'):
-        self.op = Operation(schema.Query)  # note 'schema.'
+    def __init__(self, args):
+        self.args = args
 
-        kmos = self.op.kmake_objects(namespace=namespace)
+        # you can print the resulting GraphQL
+        # print(self.op)
+
+        # Call the endpoint:
+        self.endpoint = HTTPEndpoint(args.url)
+
+    def fetch(self, op):
+        kmos = op.kmake_objects(namespace=self.args.namespace)
         kmos.name()
         kmos.namespace()
         kmos.status()
@@ -25,57 +35,37 @@ class KmakeQuery:
 
         kmos.__as__(schema.KmakeNowScheduler).monitor()
 
-        # you can print the resulting GraphQL
-        # print(self.op)
-
-        # Call the endpoint:
-        url='http://localhost:8080/query'
-        self.endpoint = HTTPEndpoint(url)
-
-    def fetch(self):
-        data = self.endpoint(self.op)
-        for r in  (self.op + data).kmake_objects:
+        data = self.endpoint(op)
+        for r in  (op + data).kmake_objects:
             yield r
 
-    def json(self, args):
-        for t in self.fetch():
-            formatted_json = json.dumps(t, default=serialize, sort_keys=True, indent=4)
-            if args.color:
-                colorful_json = highlight(formatted_json, lexers.JsonLexer(), formatters.TerminalFormatter())
-                print(colorful_json)
-            else:
-                print(formatted_json)
+    def dump(self, op):
+        return self.fetch(op)
 
-    def stop(self, args):
-        for t in self.fetch():
+    def stop(self, op):
+        for t in self.fetch(op):
             if t.__typename__ ==  "KmakeRun":
-                if t.name == args.job:
+                if t.name == self.args.job:
                     formatted_json = json.dumps(t, default=serialize, sort_keys=True, indent=4)
-                    if args.color:
+                    if self.args.color:
                         colorful_json = highlight(formatted_json, lexers.JsonLexer(), formatters.TerminalFormatter())
                         print(colorful_json)
                     else:
                         print(formatted_json)
                     return
-        print("job {} not found".format(args.job), file=stderr)
+        print("job {} not found".format(self.args.job), file=stderr)
 
-    def restart(self, args):
-        for t in self.fetch():
+    def restart(self, op):
+        for t in self.fetch(op):
             if t.__typename__ ==  "KmakeRun":
-                if t.name == args.job:
-                    formatted_json = json.dumps(t, default=serialize, sort_keys=True, indent=4)
-                    if args.color:
-                        colorful_json = highlight(formatted_json, lexers.JsonLexer(), formatters.TerminalFormatter())
-                        print(colorful_json)
-                    else:
-                        print(formatted_json)
-                    return
-        print("job {} not found".format(args.job), file=stderr)
+                if t.name == self.args.job:
+                    yield t
+        print("job {} not found".format(self.args.job), file=stderr)
 
-    def reset(self, args):
-        for t in self.fetch():
+    def reset(self, op):
+        for t in self.fetch(op):
             if t.__typename__ ==  "KmakeNowScheduler":
-                if t.name == args.scheduler:
+                if t.name == self.args.scheduler:
                     op = Operation(schema.Mutation)
 
                     input = schema.NewReset( namespace="default", kmakescheduler="kmakenowscheduler-sample", full=False)
@@ -88,22 +78,24 @@ class KmakeQuery:
                     
                     data = self.endpoint(op)
                     r = (op + data).reset
-                    formatted_json = json.dumps(r, default=serialize, sort_keys=True, indent=4)
-                    if args.color:
-                        colorful_json = highlight(formatted_json, lexers.JsonLexer(), formatters.TerminalFormatter())
-                        print(colorful_json)
-                    else:
-                        print(formatted_json)
+                    yield r
                     return
-        print("scheduler {} not found".format(args.scheduler), file=stderr)
+        print("scheduler {} not found".format(self.args.scheduler), file=stderr)
+        exit(1)
 
 def serialize(obj):        
     ret = {}
-    for x in vars(obj):
-        if x.startswith('_') and x != '__typename__':
-            continue
-        ret[x] = getattr(obj, x)
 
+    if isinstance(obj, types.GeneratorType):
+        aret = []
+        for t in obj:
+            aret.append(serialize(t))
+        return aret
+    else:
+        for x in vars(obj):
+            if x.startswith('_') and x != '__typename__':
+                continue
+            ret[x] = getattr(obj, x)       
     return ret
 
 def get_args(argv):
@@ -115,12 +107,14 @@ def get_args(argv):
     parser.add_argument('-u', '--url', default='http://localhost:8080/query',
                     help="url to query default:%(default)s")
 
+    parser.add_argument('-o', '--output', default="json", choices=['json', 'yaml'],
+                    help='output default:%(default)s')
+
     parser.add_argument('-c', '--color', default=False, action='store_true',
                     help='output in colour')
 
     subparsers = parser.add_subparsers(dest='op')
-
-    parser_json = subparsers.add_parser('json', help='output json')
+    parser_json = subparsers.add_parser('dump', help='output (default)')
 
     parser_json = subparsers.add_parser('reset', help='reset scheduler')
     parser_json.add_argument('-a', '--all', default=False, action='store_true',
@@ -134,23 +128,51 @@ def get_args(argv):
     parser_json.add_argument('job', help='job to restart') 
 
     args = parser.parse_args(args=argv)
-    if args.op is None:
-        parser.print_help()
-        exit(1)
 
     return args
 
+class JsonColorWriter:
+    def write(self, obj):
+        formatted_json = json.dumps(obj, default=serialize, sort_keys=True, indent=4)
+        colorful_json = highlight(formatted_json, lexers.JsonLexer(), formatters.TerminalFormatter())
+        print(colorful_json) 
+class JsonWriter:
+    def write(self, obj):
+        formatted_json = json.dumps(obj, default=serialize, sort_keys=True, indent=4)
+        print(formatted_json)    
+
+class YamlWriter:
+    def write(self, obj):
+        formatted_json = json.dumps(obj, default=serialize, sort_keys=True)
+        print(yaml.dump(json.loads(formatted_json))) 
+
+class YamlColorWriter:
+    def write(self, obj):
+        formatted_json = json.dumps(obj, default=serialize, sort_keys=True)
+        formatted_yaml = yaml.dump(json.loads(formatted_json))
+
+        colorful_yaml = highlight(formatted_yaml, lexers.YamlLexer(), formatters.TerminalFormatter())
+        print(colorful_yaml) 
+
+def writer_factory(args):
+    cl = args.output.capitalize()
+    if args.color:
+        cl += "Color"
+    return globals()[cl + "Writer"]()
 
 def main():
-
     args = get_args(argv[1:])
 
-    kmq = KmakeQuery(namespace=args.namespace)
+    kmq = KmakeQuery(args)
+    w = writer_factory(args)
 
-    getattr(kmq, args.op)(args)
+    q = Operation(schema.Query)  # note 'schema.'
+    if args.op is None:
+        op = "dump"
+    else:
+        op = args.op
 
-
-
+    w.write(getattr(kmq, op)(q))
 
 if __name__ == "__main__":
     main()
