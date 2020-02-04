@@ -39,36 +39,60 @@ class KmakeQuery:
         for r in  (op + data).kmake_objects:
             yield r
 
-    def dump(self, op):
-        return self.fetch(op)
+class Cli(object):
+    def __init__(self, args):
+        self.args = args
 
-    def stop(self, op):
-        for t in self.fetch(op):
-            if t.__typename__ ==  "KmakeRun":
-                if t.name == self.args.job:
-                    formatted_json = json.dumps(t, default=serialize, sort_keys=True, indent=4)
-                    if self.args.color:
-                        colorful_json = highlight(formatted_json, lexers.JsonLexer(), formatters.TerminalFormatter())
-                        print(colorful_json)
-                    else:
-                        print(formatted_json)
-                    return
-        print("job {} not found".format(self.args.job), file=stderr)
+    def dump(self, op, g):
+        return g.fetch(op)
 
-    def restart(self, op):
-        for t in self.fetch(op):
-            if t.__typename__ ==  "KmakeRun":
-                if t.name == self.args.job:
-                    yield t
-        print("job {} not found".format(self.args.job), file=stderr)
+    def stop(self, op, g):
+        for t in g.fetch(op):
+            if t.__typename__ ==  "KmakeScheduleRun":
+                if t.kmakerunname == self.args.job or t.name == self.args.job:
+                    input = schema.RunLevelIn( namespace=self.args.namespace, kmakescheduler=t.kmakeschedulename, kmakerun=t.kmakerunname)
 
-    def reset(self, op):
-        for t in self.fetch(op):
-            if t.__typename__ ==  "KmakeNowScheduler":
-                if t.name == self.args.scheduler:
                     op = Operation(schema.Mutation)
 
-                    input = schema.NewReset( namespace="default", kmakescheduler="kmakenowscheduler-sample", full=False)
+                    stop = op.stop(input=input)
+                    stop.kmakeschedulename()
+                    stop.name()
+
+                    stop.operation().__typename__()
+                    
+                    data = g.endpoint(op)
+                    r = (op + data).stop
+                    yield r
+                    return 
+        print("job {} not found".format(self.args.job), file=stderr)
+        exit(1)
+    def restart(self, op, g):
+        for t in g.fetch(op):
+            if t.__typename__ ==  "KmakeScheduleRun":
+                if t.kmakerunname == self.args.job or t.name == self.args.job:
+                    input = schema.RunLevelIn( namespace=self.args.namespace, kmakescheduler=t.kmakeschedulename, kmakerun=t.kmakerunname)
+
+                    op = Operation(schema.Mutation)
+
+                    restart = op.restart(input=input)
+                    restart.kmakeschedulename()
+                    restart.name()
+
+                    restart.operation().__typename__()
+                    
+                    data = g.endpoint(op)
+                    r = (op + data).restart
+                    yield r
+                    return 
+        print("job {} not found".format(self.args.job), file=stderr)
+        exit(1)
+    def reset(self, op, g):
+        for t in g.fetch(op):
+            if t.__typename__ ==  "KmakeNowScheduler":
+                if t.name == self.args.scheduler:
+                    input = schema.NewReset( namespace=self.args.namespace, kmakescheduler=t.name, full=self.args.all)
+
+                    op = Operation(schema.Mutation)
 
                     reset = op.reset(input=input)
                     reset.kmakeschedulename()
@@ -76,10 +100,10 @@ class KmakeQuery:
 
                     reset.operation().__typename__()
                     
-                    data = self.endpoint(op)
+                    data = g.endpoint(op)
                     r = (op + data).reset
                     yield r
-                    return
+                    return 
         print("scheduler {} not found".format(self.args.scheduler), file=stderr)
         exit(1)
 
@@ -114,18 +138,18 @@ def get_args(argv):
                     help='output in colour')
 
     subparsers = parser.add_subparsers(dest='op')
-    parser_json = subparsers.add_parser('dump', help='output (default)')
+    subparser = subparsers.add_parser('dump', help='output (default)')
 
-    parser_json = subparsers.add_parser('reset', help='reset scheduler')
-    parser_json.add_argument('-a', '--all', default=False, action='store_true',
+    subparser = subparsers.add_parser('reset', help='reset scheduler')
+    subparser.add_argument('-a', '--all', default=False, action='store_true',
                     help='reset stopped jobs')
-    parser_json.add_argument('scheduler', help='scheduler to clear')
+    subparser.add_argument('scheduler', help='scheduler to clear')
 
-    parser_json = subparsers.add_parser('stop', help='stop job')
-    parser_json.add_argument('job', help='job to stop')   
+    subparser = subparsers.add_parser('stop', help='stop job')
+    subparser.add_argument('job', help='run/kmakerun to stop')   
 
-    parser_json = subparsers.add_parser('restart', help='restart job')
-    parser_json.add_argument('job', help='job to restart') 
+    subparser = subparsers.add_parser('restart', help='restart job')
+    subparser.add_argument('job', help='run/kmakerun to restart') 
 
     args = parser.parse_args(args=argv)
 
@@ -164,6 +188,8 @@ def main():
     args = get_args(argv[1:])
 
     kmq = KmakeQuery(args)
+    cli = Cli(args)
+
     w = writer_factory(args)
 
     q = Operation(schema.Query)  # note 'schema.'
@@ -172,7 +198,7 @@ def main():
     else:
         op = args.op
 
-    w.write(getattr(kmq, op)(q))
+    w.write(getattr(cli, op)(q, kmq))
 
 if __name__ == "__main__":
     main()
