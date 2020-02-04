@@ -1,6 +1,6 @@
 from sgqlc.operation import Operation
 from sgqlc.types import Type, Field, list_of
-from schema import schema as schema
+from .schema import schema as schema
 from sgqlc.endpoint.http import HTTPEndpoint, add_query_to_url
 import json
 import yaml
@@ -199,6 +199,3 @@ def main():
         op = args.op
 
     w.write(getattr(cli, op)(q, kmq))
-
-if __name__ == "__main__":
-    main()

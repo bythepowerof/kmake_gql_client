@@ -1,0 +1,6 @@
+sgqlc
+pyyaml
+pygments
+
+[test]
+pytest>=3.10.1

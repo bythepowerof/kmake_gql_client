@@ -1,0 +1,18 @@
+matrix:
+    include:
+        - os: linux
+          dist: xenial
+          language: python
+          python: 3.7
+        - os: osx
+          language: generic
+          env: PYTHON=3.7.3
+before_install:
+    - .travis/install.sh
+    - source .travis/activate_virtualenv.sh
+install:
+    - pip install -e .
+script:
+    - pytest --gmake=make -n 4 . --cov=.
+after_script:
+    - codecov

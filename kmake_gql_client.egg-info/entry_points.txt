@@ -1,0 +1,3 @@
+[console_scripts]
+kmake-gql-client = kmake_gql_client.command_line:main
+

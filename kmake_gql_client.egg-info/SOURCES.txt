@@ -1,0 +1,12 @@
+README.md
+setup.py
+kmake_gql_client/__init__.py
+kmake_gql_client/command_line.py
+kmake_gql_client/schema.py
+kmake_gql_client.egg-info/PKG-INFO
+kmake_gql_client.egg-info/SOURCES.txt
+kmake_gql_client.egg-info/dependency_links.txt
+kmake_gql_client.egg-info/entry_points.txt
+kmake_gql_client.egg-info/not-zip-safe
+kmake_gql_client.egg-info/requires.txt
+kmake_gql_client.egg-info/top_level.txt
