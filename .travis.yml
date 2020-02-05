@@ -14,6 +14,6 @@ install:
     - pip install -e .
 script:
     - pip install -r test-requirements.txt
-    - pytest --gmake=make -n 4 . --cov=.
+    - pytest . --cov=.
 after_script:
     - codecov
