@@ -191,11 +191,12 @@ class YamlColorWriter:
         colorful_yaml = highlight(formatted_yaml, lexers.YamlLexer(), formatters.TerminalFormatter())
         return colorful_yaml
 
-def writer_factory(args):
-    cl = args.output.capitalize()
-    if args.color:
-        cl += "Color"
-    return globals()[cl + "Writer"]()
+class WriterFactory:
+    def writer(self, **args):
+        cl = args['output'].capitalize()
+        if args['color']:
+            cl += "Color"
+        return globals()[cl + "Writer"]()
 
 def main():
     args = get_args(argv[1:])
@@ -203,7 +204,7 @@ def main():
     kmq = KmakeQuery(args)
     cli = Cli(args)
 
-    w = writer_factory(args)
+    w = WriterFactory().writer(**vars(args))
 
     q = Operation(schema.Query)  # note 'schema.'
     if args.op is None:
