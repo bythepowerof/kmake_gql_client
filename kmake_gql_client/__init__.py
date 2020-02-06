@@ -10,6 +10,21 @@ from pygments import highlight, lexers, formatters
 import argparse
 from sys import argv, stderr
 
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class KmakeNotFoundError(Error):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        expression -- input expression in which the error occurred
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+
 
 class KmakeQuery:
     def __init__(self, args):
@@ -64,8 +79,7 @@ class Cli(object):
                     r = (op + data).stop
                     yield r
                     return 
-        print("job {} not found".format(self.args.job), file=stderr)
-        exit(1)
+        raise KmakeNotFoundError("job {} not found".format(self.args.job))
     def restart(self, op, g):
         for t in g.fetch(op):
             if t.__typename__ ==  "KmakeScheduleRun":
@@ -84,8 +98,7 @@ class Cli(object):
                     r = (op + data).restart
                     yield r
                     return 
-        print("job {} not found".format(self.args.job), file=stderr)
-        exit(1)
+        raise KmakeNotFoundError("job {} not found".format(self.args.job))
     def reset(self, op, g):
         for t in g.fetch(op):
             if t.__typename__ ==  "KmakeNowScheduler":
@@ -104,8 +117,8 @@ class Cli(object):
                     r = (op + data).reset
                     yield r
                     return 
-        print("scheduler {} not found".format(self.args.scheduler), file=stderr)
-        exit(1)
+        # print("scheduler {} not found".format(self.args.scheduler), file=stderr)
+        raise KmakeNotFoundError("scheduler {} not found".format(self.args.scheduler))
 
 def serialize(obj):        
     ret = {}
@@ -159,16 +172,16 @@ class JsonColorWriter:
     def write(self, obj):
         formatted_json = json.dumps(obj, default=serialize, sort_keys=True, indent=4)
         colorful_json = highlight(formatted_json, lexers.JsonLexer(), formatters.TerminalFormatter())
-        print(colorful_json) 
+        return colorful_json
 class JsonWriter:
     def write(self, obj):
         formatted_json = json.dumps(obj, default=serialize, sort_keys=True, indent=4)
-        print(formatted_json)    
+        return formatted_json
 
 class YamlWriter:
     def write(self, obj):
         formatted_json = json.dumps(obj, default=serialize, sort_keys=True)
-        print(yaml.dump(json.loads(formatted_json))) 
+        return yaml.dump(json.loads(formatted_json))
 
 class YamlColorWriter:
     def write(self, obj):
@@ -176,7 +189,7 @@ class YamlColorWriter:
         formatted_yaml = yaml.dump(json.loads(formatted_json))
 
         colorful_yaml = highlight(formatted_yaml, lexers.YamlLexer(), formatters.TerminalFormatter())
-        print(colorful_yaml) 
+        return colorful_yaml
 
 def writer_factory(args):
     cl = args.output.capitalize()
@@ -198,4 +211,4 @@ def main():
     else:
         op = args.op
 
-    w.write(getattr(cli, op)(q, kmq))
+    print(w.write(getattr(cli, op)(q, kmq)))
