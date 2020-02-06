@@ -1,5 +1,11 @@
 ## kmake-gql-client
 
+Platform    | Python | CI Status | Coverage
+------------|:-------|:------------|:--------
+linux       | 3.7.x  | [![Build Status](https://travis-ci.org/bythepowerof/kmake_gql_client.svg?branch=master)](https://travis-ci.org/bythepowerof/kmake_gql_client)| [![codecov](https://codecov.io/gh/bythepowerof/kmake_gql_client/branch/master/graph/badge.svg)](https://codecov.io/gh/bythepowerof/kmake_gql_client)
+osx         | 3.7.3  | as above -- same ci build as linux.
+windows     | todo   | todo | todo
+
 this is a client to communicate with the kmake-gql server
 
 ```
