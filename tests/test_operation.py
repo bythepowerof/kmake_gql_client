@@ -15,3 +15,29 @@ class TestOperation(TestCase):
 
         cli.dump(q, kmq)
 
+    def test_reset(self):
+        args = {'url':'', 'namespace': '', 'endpoint': Mock()}
+        kmq = KmakeQuery(**args)
+        cli = Cli(**args)
+
+        q = Operation(Query)  # note 'schema.'
+
+        cli.reset(q, kmq)
+
+    def test_restart(self):
+        args = {'url':'', 'namespace': '', 'endpoint': Mock()}
+        kmq = KmakeQuery(**args)
+        cli = Cli(**args)
+
+        q = Operation(Query)  # note 'schema.'
+
+        cli.restart(q, kmq)
+
+    def test_stop(self):
+        args = {'url':'', 'namespace': '', 'endpoint': Mock()}
+        kmq = KmakeQuery(**args)
+        cli = Cli(**args)
+
+        q = Operation(Query)  # note 'schema.'
+
+        cli.stop(q, kmq)
