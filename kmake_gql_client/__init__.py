@@ -8,7 +8,6 @@ import types
 
 from pygments import highlight, lexers, formatters
 import argparse
-from sys import argv, stderr
 
 class Error(Exception):
     """Base class for exceptions in this module."""
@@ -58,8 +57,8 @@ class Cli(object):
     def __init__(self, **args):
         self.args = args
 
-    def dump(self, op, kmq):
-        return kmq.fetch(op)
+    def dump(self, q, kmq):
+        return kmq.fetch(q)
 
     def stop(self, q, kmq):
         for t in kmq.fetch(q):
@@ -198,18 +197,19 @@ class WriterFactory:
             cl += "Color"
         return globals()[cl + "Writer"]()
 
-def main():
-    args = get_args(argv[1:])
+def main(argv):
+    args = vars(get_args(argv))
 
-    kmq = KmakeQuery(**dict({'endpoint': HTTPEndpoint(args.url)}, **vars(args)))
-    cli = Cli(**vars(args))
+    kmq = KmakeQuery(**dict({'endpoint': HTTPEndpoint(args['url'])}, **args))
+    cli = Cli(**args)
 
-    w = WriterFactory().writer(**vars(args))
+    w = WriterFactory().writer(**args)
 
     q = Operation(schema.Query)  # note 'schema.'
-    if args.op is None:
-        op = "dump"
+    if 'op' in args is None:
+        op = args['op']
     else:
-        op = args.op
+        op = "dump"
+
 
     print(w.write(getattr(cli, op)(q, kmq)))
