@@ -57,63 +57,63 @@ class Cli(object):
     def __init__(self, args):
         self.args = args
 
-    def dump(self, op, g):
-        return g.fetch(op)
+    def dump(self, op, kmq):
+        return kmq.fetch(op)
 
-    def stop(self, op, g):
-        for t in g.fetch(op):
+    def stop(self, q, kmq):
+        for t in kmq.fetch(q):
             if t.__typename__ ==  "KmakeScheduleRun":
                 if t.kmakerunname == self.args.job or t.name == self.args.job:
                     input = schema.RunLevelIn( namespace=self.args.namespace, kmakescheduler=t.kmakeschedulename, kmakerun=t.kmakerunname)
 
-                    op = Operation(schema.Mutation)
+                    q = Operation(schema.Mutation)
 
-                    stop = op.stop(input=input)
+                    stop = q.stop(input=input)
                     stop.kmakeschedulename()
                     stop.name()
 
                     stop.operation().__typename__()
                     
-                    data = g.endpoint(op)
-                    r = (op + data).stop
+                    data = kmq.endpoint(q)
+                    r = (q + data).stop
                     yield r
                     return 
         raise KmakeNotFoundError("job {} not found".format(self.args.job))
-    def restart(self, op, g):
-        for t in g.fetch(op):
+    def restart(self, q, kmq):
+        for t in kmq.fetch(q):
             if t.__typename__ ==  "KmakeScheduleRun":
                 if t.kmakerunname == self.args.job or t.name == self.args.job:
                     input = schema.RunLevelIn( namespace=self.args.namespace, kmakescheduler=t.kmakeschedulename, kmakerun=t.kmakerunname)
 
-                    op = Operation(schema.Mutation)
+                    q = Operation(schema.Mutation)
 
-                    restart = op.restart(input=input)
+                    restart = q.restart(input=input)
                     restart.kmakeschedulename()
                     restart.name()
 
                     restart.operation().__typename__()
                     
-                    data = g.endpoint(op)
-                    r = (op + data).restart
+                    data = kmq.endpoint(q)
+                    r = (q + data).restart
                     yield r
                     return 
         raise KmakeNotFoundError("job {} not found".format(self.args.job))
-    def reset(self, op, g):
-        for t in g.fetch(op):
+    def reset(self, q, kmq):
+        for t in kmq.fetch(q):
             if t.__typename__ ==  "KmakeNowScheduler":
                 if t.name == self.args.scheduler:
                     input = schema.NewReset( namespace=self.args.namespace, kmakescheduler=t.name, full=self.args.all)
 
-                    op = Operation(schema.Mutation)
+                    q = Operation(schema.Mutation)
 
-                    reset = op.reset(input=input)
+                    reset = q.reset(input=input)
                     reset.kmakeschedulename()
                     reset.name()
 
                     reset.operation().__typename__()
                     
-                    data = g.endpoint(op)
-                    r = (op + data).reset
+                    data = kmq.endpoint(q)
+                    r = (q + data).reset
                     yield r
                     return 
         # print("scheduler {} not found".format(self.args.scheduler), file=stderr)
