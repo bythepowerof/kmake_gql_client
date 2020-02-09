@@ -22,6 +22,7 @@ class KmakeNotFoundError(Error):
 
     def __init__(self, message):
         self.message = message
+        self.code = 2
 
 
 class KmakeQuery:
