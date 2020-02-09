@@ -1,4 +1,5 @@
 
+import io
 
 from unittest import TestCase
 from kmake_gql_client import KmakeQuery, WriterFactory, Cli
@@ -10,6 +11,22 @@ from mock import Mock, patch
 import urllib.request
 
 from operation_base import SgqlTestCase
+
+mutation_response = b'''
+{
+  "data": {
+    "%b": {
+      "kmakename": "",
+      "kmakerunname": "",
+      "kmakeschedulename": "kmakenowscheduler-sample",
+      "operation": {
+        "__typename": "KmakeScheduleReset"
+      },
+      "name": "kmakenowscheduler-reset-gql-cgvpf"
+    }
+  }
+}
+'''
 
 query_response = b'''
 {
@@ -283,58 +300,52 @@ class TestWriter:
 
 class TestOperation(SgqlTestCase):
 
-    def setUp(self):
+    @patch('urllib.request.urlopen')
+    def setUp(self, mock_urlopen):
         super().setUp()
 
-        args = {'url':'http://dummy', 'namespace': ''}
-        args['endpoint'] = HTTPEndpoint(args['url'])
+        self.mock_urlopen = mock_urlopen
 
-        # self.kmq = KmakeQuery(**args)
-        self.cli = Cli(**args)
-        self.q = Operation(Query)  # note 'schema.'
+        self.args = {'url':'http://dummy', 'namespace': ''}
+        self.args['endpoint'] = HTTPEndpoint(self.args['url'])
+
+
+    def configure(self, mutation, **more_args):
+
+        self.mock_urlopen.side_effect = [io.BytesIO(query_response), io.BytesIO(mutation_response %mutation.encode('utf8'))]
+
+        self.args.update(**more_args)
+
+        self.kmq = KmakeQuery(**self.args)
+        self.cli = Cli(**self.args)
+        self.q = Operation(Query)
         self.w = TestWriter()
 
-    @patch('urllib.request.urlopen')
-    def test_dump(self, mock_urlopen):
-
-        self.configure_mock_urlopen(mock_urlopen, query_response)
-
-        args = {'url':'http://dummy', 'namespace': ''}
-        args['endpoint'] = HTTPEndpoint(args['url'])
-
-        self.kmq = KmakeQuery(**args)
+    def test_dump(self):
+        self.configure('', **{})
         xxx = self.cli.dump(self.q, self.kmq)
         yyy = self.w.write(xxx)
         self.assertEqual(len(yyy), 31)
 
-    # def test_reset(self):
-    #     args = {'url':'', 'namespace': '', 'endpoint': Mock()}
-    #     kmq = KmakeQuery(**args)
-    #     cli = Cli(**args)
+    def test_reset(self):
+        self.configure('reset', **{'scheduler': 'kmakenowscheduler-sample', 'all': True})
 
-    #     q = Operation(Query)  # note 'schema.'
-    #     w = TestWriter()
-
-    #     xxx = w.write(cli.reset(q, kmq))
-    #     self.assertEqual(xxx, 'a')
+        xxx = self.cli.reset(self.q, self.kmq)
+        yyy = self.w.write(xxx)
+        self.assertEqual(len(yyy), 1)
 
 
-    # def test_restart(self):
-    #     args = {'url':'', 'namespace': '', 'endpoint': Mock()}
-    #     kmq = KmakeQuery(**args)
-    #     cli = Cli(**args)
+    def test_restart(self):
+        self.configure('restart', **{'job': 'kmakerun-dummy-kgsfg'})
 
-    #     q = Operation(Query)  # note 'schema.'
-
-    #     xxx = cli.restart(q, kmq)
-    #     self.assertEqual(xxx, 'a')
+        xxx = self.cli.restart(self.q, self.kmq)
+        yyy = self.w.write(xxx)
+        self.assertEqual(len(yyy), 1)
 
 
-    # def test_stop(self):
-    #     args = {'url':'', 'namespace': '', 'endpoint': Mock()}
-    #     kmq = KmakeQuery(**args)
-    #     cli = Cli(**args)
+    def test_stop(self):
+        self.configure('stop', **{'job': 'kmakerun-dummy-kgsfg'})
 
-    #     q = Operation(Query)  # note 'schema.'
-    #     xxx = cli.stop(q, kmq)        
-    #     self.assertEqual(xxx, 'a')
+        xxx = self.cli.stop(self.q, self.kmq)
+        yyy = self.w.write(xxx)
+        self.assertEqual(len(yyy), 1)

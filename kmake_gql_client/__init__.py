@@ -50,6 +50,7 @@ class KmakeQuery:
         kmos.__as__(schema.KmakeNowScheduler).monitor()
 
         data = self.endpoint(op)
+
         for r in  (op + data).kmake_objects:
             yield r
 
@@ -79,6 +80,7 @@ class Cli(object):
                     yield r
                     return 
         raise KmakeNotFoundError("job {} not found".format(self.args['job']))
+
     def restart(self, q, kmq):
         for t in kmq.fetch(q):
             if t.__typename__ ==  "KmakeScheduleRun":
@@ -98,6 +100,7 @@ class Cli(object):
                     yield r
                     return 
         raise KmakeNotFoundError("job {} not found".format(self.args['job']))
+
     def reset(self, q, kmq):
         for t in kmq.fetch(q):
             if t.__typename__ ==  "KmakeNowScheduler":
@@ -112,11 +115,12 @@ class Cli(object):
 
                     reset.operation().__typename__()
                     
+                    print(q)
+
                     data = kmq.endpoint(q)
                     r = (q + data).reset
                     yield r
                     return 
-        # print("scheduler {} not found".format(self.args.scheduler), file=stderr)
         raise KmakeNotFoundError("scheduler {} not found".format(self.args['scheduler']))
 
 def serialize(obj):        

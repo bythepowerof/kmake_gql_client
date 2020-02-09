@@ -21,52 +21,6 @@ class SgqlTestCase(TestCase):
             'application/vnd.xyz.feature-flag+json',
         ])
 
-        # self.graphql_query = '''
-        # query GitHubRepoIssues($repoOwner: String!, $repoName: String!) {
-        # repository(owner: $repoOwner, name: $repoName) {
-        #     issues(first: 100) {
-        #     nodes {
-        #         number
-        #         title
-        #     }
-        #     }
-        # }
-        # }
-        # '''
-
-        # self.graphql_response_ok = b'''
-        # {
-        # "data": {
-        #     "repository": {
-        #     "issues": {
-        #         "nodes": [
-        #         {
-        #             "number": 1,
-        #             "title": "unit tests: sgqlc.types"
-        #         }
-        #         ]
-        #     }
-        #     }
-        # }
-        # }'''
-
-        # self.graphql_response_error = b'''
-        # {
-        # "errors": [{
-        #     "message": "Server Reported Error",
-        #     "locations": [{"line": 1, "column": 1}]
-        # }, {
-        #     "message": "Other Message",
-        #     "path": ["repository", "issues"]
-        # }]
-        # }
-        # '''
-
-        # self.graphql_response_json_error = b'''
-        # {
-        # "data": {
-        # '''
-
     # -- Test Helpers --
 
     def get_json_exception(self, s):
@@ -75,14 +29,6 @@ class SgqlTestCase(TestCase):
             return None
         except json.JSONDecodeError as e:
             return e
-
-
-    def configure_mock_urlopen(self, mock_urlopen, payload):
-        if isinstance(payload, Exception):
-            mock_urlopen.side_effect = payload
-        else:
-            mock_urlopen.return_value = io.BytesIO(payload)
-
 
     def check_request_url(self, req, expected):
         split = urllib.parse.urlsplit(req.full_url)
