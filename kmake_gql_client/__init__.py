@@ -116,8 +116,6 @@ class Cli(object):
 
                     reset.operation().__typename__()
                     
-                    print(q)
-
                     data = kmq.endpoint(q)
                     r = (q + data).reset
                     yield r
