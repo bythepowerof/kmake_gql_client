@@ -7,8 +7,6 @@ import io
 from data import mutation_response, query_response
 import sys
 
-def here(xxx):
-    print(xxx)
 
 class TestConsole(TestCase):
     def test_basic(self):
