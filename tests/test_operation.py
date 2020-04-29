@@ -5,12 +5,10 @@ from unittest import TestCase
 from kmake_gql_client import KmakeQuery, WriterFactory, Cli, KmakeNotFoundError
 from kmake_gql_client.schema import  Query
 from sgqlc.operation import Operation
-from sgqlc.endpoint.http import HTTPEndpoint
+from sgqlc.endpoint.websocket import WebSocketEndpoint
+from mock import patch
 
 from data import mutation_response, query_response
-
-from mock import Mock, patch
-import urllib.request
 
 
 class TestWriter:
@@ -22,16 +20,12 @@ class TestWriter:
 
 class TestOperation(TestCase):
 
-    @patch('urllib.request.urlopen')
-    def setUp(self, mock_urlopen):
-        self.mock_urlopen = mock_urlopen
-        self.args = {'url':'http://dummy', 'namespace': ''}
-        self.args['endpoint'] = HTTPEndpoint(self.args['url'])
-
+    def setUp(self):
+        self.args = {'url':'ws://dummy', 'namespace': ''}
+        self.args['endpoint'] = WebSocketEndpoint(self.args['url'])
 
     def configure(self, mutation, **more_args):
-        self.mock_urlopen.side_effect = [io.BytesIO(query_response), io.BytesIO(mutation_response %mutation.encode('utf8'))]
-
+        # self.mock_websocket.side_effect = [query_response]
         self.args.update(**more_args)
 
         self.kmq = KmakeQuery(**self.args)
@@ -39,61 +33,91 @@ class TestOperation(TestCase):
         self.q = Operation(Query)
         self.w = TestWriter()
 
-    def test_dump(self):
+    @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
+    def test_dump(self, mock_websocket):
+        self.mock_websocket = mock_websocket
+        self.mock_websocket.side_effect = [query_response]
+
         self.configure('', **{})
 
         xxx = self.cli.dump(self.q, self.kmq)
         yyy = self.w.write(xxx)
         self.assertEqual(len(yyy), 31)
 
-    def test_reset(self):
+
+    @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
+    def test_reset(self, mock_websocket):
+        self.mock_websocket = mock_websocket
+        self.mock_websocket.side_effect = [query_response, mutation_response]
+
         self.configure('reset', **{'scheduler': 'kmakenowscheduler-sample', 'all': True})
 
         xxx = self.cli.reset(self.q, self.kmq)
         yyy = self.w.write(xxx)
         self.assertEqual(len(yyy), 1)
 
+    @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
+    def test_restart(self, mock_websocket):
+        self.mock_websocket = mock_websocket
+        self.mock_websocket.side_effect = [query_response, mutation_response]
 
-    def test_restart(self):
-        self.configure('restart', **{'job': 'kmakerun-dummy-kgsfg'})
+        self.configure('r, estart', **{'job': 'kmakerun-dummy-kgsfg'})
 
         xxx = self.cli.restart(self.q, self.kmq)
         yyy = self.w.write(xxx)
         self.assertEqual(len(yyy), 1)
 
+    @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
+    def test_stop(self, mock_websocket):
+        self.mock_websocket = mock_websocket
+        self.mock_websocket.side_effect = [query_response, mutation_response]
 
-    def test_stop(self):
         self.configure('stop', **{'job': 'kmakerun-dummy-kgsfg'})
 
         xxx = self.cli.stop(self.q, self.kmq)
         yyy = self.w.write(xxx)
         self.assertEqual(len(yyy), 1)
 
-    def test_reset_not_found(self):
+    @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
+    def test_reset_not_found(self, mock_websocket):
+        self.mock_websocket = mock_websocket
+        self.mock_websocket.side_effect = [query_response, mutation_response]
+
         self.configure('reset', **{'scheduler': 'not_found', 'all': True})
 
-        xxx = self.cli.reset(self.q, self.kmq)
 
-        with self.assertRaises(KmakeNotFoundError) as cm:
+        with self.assertRaises(KmakeNotFoundError) as context:
+            xxx = self.cli.reset(self.q, self.kmq)
             yyy = self.w.write(xxx)
-        self.assertEqual(cm.exception.code, 2)
 
-    def test_restart_not_found(self):
+        self.assertTrue('scheduler not_found' in str(context.exception))    
+        self.assertEqual(context.exception.code, 2)
+
+    @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
+    def test_restart_not_found(self, mock_websocket):
+        self.mock_websocket = mock_websocket
+        self.mock_websocket.side_effect = [query_response, mutation_response]
+
         self.configure('restart', **{'job': 'not_found'})
 
-        xxx = self.cli.restart(self.q, self.kmq)
-
-        with self.assertRaises(KmakeNotFoundError) as cm:
+        with self.assertRaises(KmakeNotFoundError) as context:
+            xxx = self.cli.restart(self.q, self.kmq)
             yyy = self.w.write(xxx)
-        self.assertEqual(cm.exception.code, 2)
 
+        self.assertTrue('job not_found' in str(context.exception))    
+        self.assertEqual(context.exception.code, 2)
 
-    def test_stop_not_found(self):
-        self.configure('stop', **{'job': 'not_found``'})
+    @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
+    def test_stop_not_found(self, mock_websocket):
+        self.mock_websocket = mock_websocket
+        self.mock_websocket.side_effect = [query_response, mutation_response]
 
-        xxx = self.cli.stop(self.q, self.kmq)
+        self.configure('stop', **{'job': 'not_found'})
 
-        with self.assertRaises(KmakeNotFoundError) as cm:
+        with self.assertRaises(KmakeNotFoundError) as context:
+            xxx = self.cli.stop(self.q, self.kmq)
             yyy = self.w.write(xxx)
-        self.assertEqual(cm.exception.code, 2)
+
+        self.assertTrue('job not_found' in str(context.exception))    
+        self.assertEqual(context.exception.code, 2)
 

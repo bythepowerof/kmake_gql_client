@@ -1,7 +1,8 @@
 from unittest import TestCase
 from kmake_gql_client import main
+from sgqlc.endpoint.websocket import WebSocketEndpoint
 
-from mock import Mock, patch
+from mock import patch
 import urllib.request
 import io
 from data import mutation_response, query_response
@@ -14,18 +15,18 @@ class TestConsole(TestCase):
             main(['-h'])
         self.assertEqual(cm.exception.code, 0)
 
-    @patch('urllib.request.urlopen')
-    def test_main(self, mock_urlopen):
+    @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
+    def test_main(self, mock_websocket):
         saveout = sys.stdout
         myout = io.StringIO()
         sys.stdout = myout
 
-        self.mock_urlopen = mock_urlopen
-        self.mock_urlopen.side_effect = [io.BytesIO(query_response), io.BytesIO(mutation_response %"".encode('utf8'))]
+        self.mock_websocket = mock_websocket
+        self.mock_websocket.side_effect = [query_response]
 
         main([])
 
-        self.assertEquals(len(myout.getvalue()), 8333)
+        self.assertEqual(len(myout.getvalue()), 8271)
         sys.stdout = saveout
 
 

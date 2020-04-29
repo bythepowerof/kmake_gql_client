@@ -1,13 +1,17 @@
 from sgqlc.operation import Operation
 from sgqlc.types import Type, Field, list_of
 from .schema import schema as schema
-from sgqlc.endpoint.http import HTTPEndpoint, add_query_to_url
+from sgqlc.endpoint.http import add_query_to_url
+from sgqlc.endpoint.websocket import WebSocketEndpoint
 import json
 import yaml
 import types
 
 from pygments import highlight, lexers, formatters
 import argparse
+
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 class Error(Exception):
     """Base class for exceptions in this module."""
@@ -51,9 +55,16 @@ class KmakeQuery:
         kmos.__as__(schema.KmakeNowScheduler).monitor()
 
         data = self.endpoint(op)
+        # pp.pprint(data)
 
-        for r in  (op + data).kmake_objects:
-            yield r
+        for t in data:
+            # pp.pprint(t)
+
+            if 'data' in t:
+                if 'kmakeObjects' in t['data']:
+                    for tt in t['data']['kmakeObjects']:
+                        yield tt
+
 
 class Cli(object):
     def __init__(self, **args):
@@ -63,10 +74,10 @@ class Cli(object):
         return kmq.fetch(q)
 
     def stop(self, q, kmq):
-        for t in kmq.fetch(q):
-            if t.__typename__ ==  "KmakeScheduleRun":
-                if t.kmakerunname == self.args['job'] or t.name == self.args['job']:
-                    input = schema.RunLevelIn( namespace=self.args['namespace'], kmakescheduler=t.kmakeschedulename, kmakerun=t.kmakerunname)
+        for data in kmq.fetch(q):
+            if data["__typename"] ==  "KmakeScheduleRun":
+                if data["kmakerunname"] == self.args['job'] or data["name"] == self.args['job']:
+                    input = schema.RunLevelIn( namespace=self.args['namespace'], kmakescheduler=data["kmakeschedulename"], kmakerun=data["kmakerunname"])
 
                     q = Operation(schema.Mutation)
 
@@ -76,17 +87,15 @@ class Cli(object):
 
                     stop.operation().__typename__()
                     
-                    data = kmq.endpoint(q)
-                    r = (q + data).stop
-                    yield r
-                    return 
+                    return kmq.endpoint(q)
+
         raise KmakeNotFoundError("job {} not found".format(self.args['job']))
 
     def restart(self, q, kmq):
         for t in kmq.fetch(q):
-            if t.__typename__ ==  "KmakeScheduleRun":
-                if t.kmakerunname == self.args['job'] or t.name == self.args['job']:
-                    input = schema.RunLevelIn( namespace=self.args['namespace'], kmakescheduler=t.kmakeschedulename, kmakerun=t.kmakerunname)
+            if t['__typename'] ==  "KmakeScheduleRun":
+                if t['kmakerunname'] == self.args['job'] or t['name'] == self.args['job']:
+                    input = schema.RunLevelIn( namespace=self.args['namespace'], kmakescheduler=t['kmakeschedulename'], kmakerun=t['kmakerunname'])
 
                     q = Operation(schema.Mutation)
 
@@ -96,17 +105,15 @@ class Cli(object):
 
                     restart.operation().__typename__()
                     
-                    data = kmq.endpoint(q)
-                    r = (q + data).restart
-                    yield r
-                    return 
+                    return kmq.endpoint(q)
+ 
         raise KmakeNotFoundError("job {} not found".format(self.args['job']))
 
     def reset(self, q, kmq):
         for t in kmq.fetch(q):
-            if t.__typename__ ==  "KmakeNowScheduler":
-                if t.name == self.args['scheduler']:
-                    input = schema.NewReset( namespace=self.args['namespace'], kmakescheduler=t.name, full=self.args['all'])
+            if t['__typename'] ==  "KmakeNowScheduler":
+                if t['name'] == self.args['scheduler']:
+                    input = schema.NewReset( namespace=self.args['namespace'], kmakescheduler=t['name'], full=self.args['all'])
 
                     q = Operation(schema.Mutation)
 
@@ -116,10 +123,8 @@ class Cli(object):
 
                     reset.operation().__typename__()
                     
-                    data = kmq.endpoint(q)
-                    r = (q + data).reset
-                    yield r
-                    return 
+                    return kmq.endpoint(q)
+
         raise KmakeNotFoundError("scheduler {} not found".format(self.args['scheduler']))
 
 def serialize(obj):        
@@ -128,13 +133,9 @@ def serialize(obj):
     if isinstance(obj, types.GeneratorType):
         aret = []
         for t in obj:
-            aret.append(serialize(t))
+            aret.append(t)
         return aret
-    else:
-        for x in vars(obj):
-            if x.startswith('_') and x != '__typename__':
-                continue
-            ret[x] = getattr(obj, x)       
+   
     return ret
 
 def get_args(argv):
@@ -143,7 +144,7 @@ def get_args(argv):
     parser.add_argument('-n', '--namespace', default='default',
                     help="namespace to query default:%(default)s")
 
-    parser.add_argument('-u', '--url', default='http://localhost:8080/query',
+    parser.add_argument('-u', '--url', default='ws://localhost:8080/query',
                     help="url to query default:%(default)s")
 
     parser.add_argument('-o', '--output', default="json", choices=['json', 'yaml'],
@@ -203,13 +204,13 @@ class WriterFactory:
 def main(argv):
     args = vars(get_args(argv))
 
-    kmq = KmakeQuery(**dict({'endpoint': HTTPEndpoint(args['url'])}, **args))
+    kmq = KmakeQuery(**dict({'endpoint': WebSocketEndpoint(args['url'])}, **args))
     cli = Cli(**args)
 
     w = WriterFactory().writer(**args)
 
     q = Operation(schema.Query)  # note 'schema.'
-    if 'op' in args is None:
+    if 'op' in args and args['op'] is not None:
         op = args['op']
     else:
         op = "dump"
