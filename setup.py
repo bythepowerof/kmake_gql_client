@@ -13,7 +13,11 @@ setup(
          },
    include_package_data=False,
    zip_safe=False,
-   install_requires=['sgqlc', 'pyyaml', 'pygments'], #external packages as dependencies
+   install_requires=[
+       'sgqlc>=v10.1', 
+       'pyyaml', 
+       'pygments',
+       'websocket_client>=0.57.0'], #external packages as dependencies
    entry_points = {
         'console_scripts': ['kmake-gql-client=kmake_gql_client.command_line:main'],
     }
