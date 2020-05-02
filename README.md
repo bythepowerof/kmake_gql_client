@@ -11,28 +11,40 @@ this is a client to communicate with the kmake-gql server
 ```
 kmake graphql client
 
-positional arguments:
-  {dump,reset,stop,restart}
-    dump                output (default)
-    reset               reset scheduler
-    stop                stop job
-    restart             restart job
+  positional arguments:
+    {dump,reset,stop,restart}
+      dump                output (default)
+      reset               reset scheduler
+      stop                stop job
+      restart             restart job
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -n NAMESPACE, --namespace NAMESPACE
+  optional arguments:
+    -h, --help            show this help message and exit
+    -n NAMESPACE, --namespace NAMESPACE
                         namespace to query default:default
-  -u URL, --url URL     url to query default:http://localhost:8080/query
-  -o {json,yaml}, --output {json,yaml}
+    -u URL, --url URL     url to query default:http://localhost:8080/query
+    -o {json,yaml}, --output {json,yaml}
                         output default:json
-  -c, --color           output in colour
+    -c, --color           output in colour
+```
 
-   dump [-h]
+### dump
+
+Dump the contents of a namespace.
+
+```
+dump [-h]
 
 optional arguments:
   -h, --help  show this help message and exit
+``
 
-  reset [-h] [-a] scheduler
+### reset
+
+Clear all scheduleruns for a given scheduler. 
+
+```
+reset [-h] [-a] scheduler
 
 positional arguments:
   scheduler   scheduler to clear
@@ -40,20 +52,44 @@ positional arguments:
 optional arguments:
   -h, --help  show this help message and exit
   -a, --all   reset stopped jobs
+```
 
-    stop [-h] job
+### stop
+
+Stop a running schedulejob.
+
+``
+stop [-h] job
 
 positional arguments:
   job         run/kmakerun to stop
 
 optional arguments:
   -h, --help  show this help message and exit  
+```
 
-    restart [-h] job
+### restart
+
+Restart a stopped kmake job
+
+```
+restart [-h] job
 
 positional arguments:
   job         run/kmakerun to restart
 
 optional arguments:
   -h, --help  show this help message and exit
+```
+
+### changed
+
+Watch for changes on a namespace. This will continue until stopped
+
+```
+changed [-h] [-q]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  -q, --quiet  remove chatter
 ```
