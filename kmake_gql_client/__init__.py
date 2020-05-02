@@ -73,7 +73,7 @@ class Cli(object):
     def dump(self, q, kmq):
         return kmq.fetch(q)
 
-    def changed(self, s, kmq, w):
+    def changed(self, s, kmq):
         input = schema.SubNamespace( namespace=self.args['namespace'])
 
         changed = s.changed(input=input)
@@ -91,7 +91,7 @@ class Cli(object):
         for t in data:
             if 'data' in t:
                 if 'changed' in t['data']:
-                    print(w.write(t['data']))
+                    yield t['data']
 
     def stop(self, q, kmq):
         for data in kmq.fetch(q):
@@ -231,15 +231,15 @@ def main(argv):
 
     w = WriterFactory().writer(**args)
 
-    q = Operation(schema.Query)  # note 'schema.'
-    s = Operation(schema.Subscription)
-
     if 'op' in args and args['op'] is not None:
         op = args['op']
     else:
         op = "dump"
 
     if op == "changed":
-        getattr(cli, op)(s, kmq, w)
+        q = Operation(schema.Subscription)
     else:
-        print(w.write(getattr(cli, op)(q, kmq)))
+        q = Operation(schema.Query)  # note 'schema.'
+
+    for i in getattr(cli, op)(q, kmq):
+        print(w.write(i))

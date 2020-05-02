@@ -26,7 +26,7 @@ class TestConsole(TestCase):
 
         main([])
 
-        self.assertEqual(len(myout.getvalue()), 8271)
+        self.assertEqual(len(myout.getvalue()), 7217)
         sys.stdout = saveout
 
 
