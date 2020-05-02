@@ -282,3 +282,56 @@ query_response = [{
     }
 }
 ]
+
+changed_response = [
+  {
+    "data": {
+      "changed": {
+        "__typename": "Kmake",
+        "name": "kmake-wordpress",
+        "namespace": "default",
+        "status": "Provision PVC (kmake-wordpress-pvc-kxdb6)"
+      }
+    }
+  },
+  {
+    "data": {
+      "changed": {
+        "__typename": "Kmake",
+        "name": "kmake-wordpress",
+        "namespace": "default",
+        "status": "Provision PVC (kmake-wordpress-pvc-kxdb6)"
+      }
+    }
+  },
+  {
+    "data": {
+      "changed": {
+        "__typename": "Kmake",
+        "name": "kmake-wordpress",
+        "namespace": "default",
+        "status": "BackOff PVC (kmake-wordpress-pvc-kxdb6)"
+      }
+    }
+  },
+  {
+    "data": {
+      "changed": {
+        "__typename": "Kmake",
+        "name": "kmake-wordpress",
+        "namespace": "default",
+        "status": "Provision PVC (kmake-wordpress-pvc-kxdb6)"
+      }
+    }
+  },
+  {
+    "data": {
+      "changed": {
+        "__typename": "Kmake",
+        "name": "kmake-wordpress",
+        "namespace": "default",
+        "status": "Ready Main"
+      }
+    }
+  }
+]
