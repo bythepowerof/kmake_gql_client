@@ -3,12 +3,12 @@ import io
 
 from unittest import TestCase
 from kmake_gql_client import KmakeQuery, WriterFactory, Cli, KmakeNotFoundError
-from kmake_gql_client.schema import  Query
+from kmake_gql_client.schema import  Query, Subscription
 from sgqlc.operation import Operation
 from sgqlc.endpoint.websocket import WebSocketEndpoint
 from mock import patch
 
-from data import mutation_response, query_response
+from data import mutation_response, query_response, changed_response
 
 
 class TestWriter:
@@ -21,7 +21,7 @@ class TestWriter:
 class TestOperation(TestCase):
 
     def setUp(self):
-        self.args = {'url':'ws://dummy', 'namespace': ''}
+        self.args = {'url':'ws://dummy', 'namespace': '', 'quiet': True}
         self.args['endpoint'] = WebSocketEndpoint(self.args['url'])
 
     def configure(self, mutation, **more_args):
@@ -31,6 +31,8 @@ class TestOperation(TestCase):
         self.kmq = KmakeQuery(**self.args)
         self.cli = Cli(**self.args)
         self.q = Operation(Query)
+        self.s = Operation(Subscription)
+
         self.w = TestWriter()
 
     @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
@@ -44,6 +46,17 @@ class TestOperation(TestCase):
         yyy = self.w.write(xxx)
         self.assertEqual(len(yyy), 31)
 
+
+    @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
+    def test_changed(self, mock_websocket):
+        self.mock_websocket = mock_websocket
+        self.mock_websocket.side_effect = [changed_response]
+
+        self.configure('', **{})
+
+        xxx = self.cli.changed(self.s, self.kmq)
+        yyy = self.w.write(xxx)
+        self.assertEqual(len(yyy), 5)
 
     @patch('sgqlc.endpoint.websocket.WebSocketEndpoint.__call__')
     def test_reset(self, mock_websocket):

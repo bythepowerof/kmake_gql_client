@@ -6,6 +6,7 @@ from sgqlc.endpoint.websocket import WebSocketEndpoint
 import json
 import yaml
 import types
+import sys
 
 from pygments import highlight, lexers, formatters
 import argparse
@@ -72,6 +73,37 @@ class Cli(object):
 
     def dump(self, q, kmq):
         return kmq.fetch(q)
+
+    def changed(self, s, kmq):
+        input = schema.SubNamespace( namespace=self.args['namespace'])
+
+        changed = s.changed(input=input)
+        changed.name()
+        changed.namespace()
+        changed.status()
+        changed.__as__(schema.KmakeScheduleRun).kmakename()
+        changed.__as__(schema.KmakeScheduleRun).kmakerunname()
+        changed.__as__(schema.KmakeScheduleRun).kmakeschedulename()
+        changed.__as__(schema.KmakeRun).kmakename()
+        changed.__as__(schema.KmakeNowScheduler).monitor()
+
+        data = kmq.endpoint(s)
+
+        try:
+            if not self.args['quiet']:
+                print("Listening...", file=sys.stderr)
+
+            for t in data:
+                if 'data' in t:
+                    if 'changed' in t['data']:
+                        yield t['data']
+                        
+                if not self.args['quiet']:
+                    print("Listening...", file=sys.stderr)
+        except KeyboardInterrupt:
+            if not self.args['quiet']:
+                print("Bye", file=sys.stderr)
+            return
 
     def stop(self, q, kmq):
         for data in kmq.fetch(q):
@@ -167,6 +199,10 @@ def get_args(argv):
     subparser = subparsers.add_parser('restart', help='restart job')
     subparser.add_argument('job', help='run/kmakerun to restart') 
 
+    subparser = subparsers.add_parser('changed', help='monitor changes')
+    subparser.add_argument('-q', '--quiet', default=False, action='store_true',
+                    help='remove chatter')
+
     args = parser.parse_args(args=argv)
 
     return args
@@ -209,11 +245,15 @@ def main(argv):
 
     w = WriterFactory().writer(**args)
 
-    q = Operation(schema.Query)  # note 'schema.'
     if 'op' in args and args['op'] is not None:
         op = args['op']
     else:
         op = "dump"
 
+    if op == "changed":
+        q = Operation(schema.Subscription)
+    else:
+        q = Operation(schema.Query)  # note 'schema.'
 
-    print(w.write(getattr(cli, op)(q, kmq)))
+    for i in getattr(cli, op)(q, kmq):
+        print(w.write(i))
