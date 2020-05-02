@@ -37,7 +37,7 @@ dump [-h]
 
 optional arguments:
   -h, --help  show this help message and exit
-``
+```
 
 ### reset
 
@@ -58,7 +58,7 @@ optional arguments:
 
 Stop a running schedulejob.
 
-``
+```
 stop [-h] job
 
 positional arguments:
