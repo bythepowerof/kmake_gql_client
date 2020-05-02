@@ -22,7 +22,7 @@ kmake graphql client
     -h, --help            show this help message and exit
     -n NAMESPACE, --namespace NAMESPACE
                         namespace to query default:default
-    -u URL, --url URL     url to query default:http://localhost:8080/query
+    -u URL, --url URL     url to query default:ws://localhost:8080/query
     -o {json,yaml}, --output {json,yaml}
                         output default:json
     -c, --color           output in colour
