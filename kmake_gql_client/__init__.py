@@ -73,6 +73,26 @@ class Cli(object):
     def dump(self, q, kmq):
         return kmq.fetch(q)
 
+    def changed(self, s, kmq, w):
+        input = schema.SubNamespace( namespace=self.args['namespace'])
+
+        changed = s.changed(input=input)
+        changed.name()
+        changed.namespace()
+        changed.status()
+        changed.__as__(schema.KmakeScheduleRun).kmakename()
+        changed.__as__(schema.KmakeScheduleRun).kmakerunname()
+        changed.__as__(schema.KmakeScheduleRun).kmakeschedulename()
+        changed.__as__(schema.KmakeRun).kmakename()
+        changed.__as__(schema.KmakeNowScheduler).monitor()
+
+        data = kmq.endpoint(s)
+
+        for t in data:
+            if 'data' in t:
+                if 'changed' in t['data']:
+                    print(w.write(t['data']))
+
     def stop(self, q, kmq):
         for data in kmq.fetch(q):
             if data["__typename"] ==  "KmakeScheduleRun":
@@ -167,6 +187,8 @@ def get_args(argv):
     subparser = subparsers.add_parser('restart', help='restart job')
     subparser.add_argument('job', help='run/kmakerun to restart') 
 
+    subparser = subparsers.add_parser('changed', help='monitor changes')
+
     args = parser.parse_args(args=argv)
 
     return args
@@ -210,10 +232,14 @@ def main(argv):
     w = WriterFactory().writer(**args)
 
     q = Operation(schema.Query)  # note 'schema.'
+    s = Operation(schema.Subscription)
+
     if 'op' in args and args['op'] is not None:
         op = args['op']
     else:
         op = "dump"
 
-
-    print(w.write(getattr(cli, op)(q, kmq)))
+    if op == "changed":
+        getattr(cli, op)(s, kmq, w)
+    else:
+        print(w.write(getattr(cli, op)(q, kmq)))
